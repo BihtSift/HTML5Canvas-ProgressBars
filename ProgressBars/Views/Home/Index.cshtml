@@ -1,0 +1,109 @@
+﻿@model IEnumerable<ProgressBars.Models.ProgressionData>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table>
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Total)
+        </th>
+        <th>
+            Progress 1
+        </th>
+        <th>
+            Progress 2
+        </th>
+        <th>
+            Progress 3
+        </th>
+        <th>
+            Progress 4
+        </th>
+        <th>
+            Progress 5
+        </th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Total)
+        </td>
+        @foreach (var progress in item.Progress) {
+            <td>
+                <canvas class="ProgressBar" data-total="@item.Total" data-progress="@progress" width="100" height="23" />
+            </td>
+        }
+    </tr>
+}
+
+</table>
+
+<script type="text/javascript">
+    $("document").ready(function() {
+        $(".ProgressBar").each(function () {
+            // Get all values
+            var total = $(this).data("total");
+            var progress = $(this).data("progress");
+            var percentComplete = progress / total;
+            var width = $(this).attr("width");
+            var height = $(this).attr("height");
+            var padding = 2;
+
+            // Compute progress width
+            var progWidth = width * percentComplete;
+
+            // Get context
+            var ctx = this.getContext("2d");
+
+            // Setup Font
+            ctx.font = "bold 12px Calibri";
+            ctx.shadowColor = "white";
+            ctx.shadowBlur = 2;
+            ctx.shadowOffsetX = 1;
+            ctx.shadowOffSetY = 2;
+
+            // Setup Gradient
+            var grdColor1 = "Red";
+            var grdColor2 = "Pink";
+            if (percentComplete >= .75) {
+                grdColor1 = "DarkGreen";
+                grdColor2 = "LightGreen";
+            }
+            else if (percentComplete >= .5) {
+                grdColor1 = "Orange";
+                grdColor2 = "Yellow";
+            }
+
+            var grd = ctx.createLinearGradient(0, height, 0, 0);
+            grd.addColorStop(0.0, grdColor2);
+            grd.addColorStop(0.3, grdColor1);
+            grd.addColorStop(1.0, grdColor2);
+            ctx.fillStyle = grd;
+
+            // Draw border
+            ctx.strokeRect(0, 0, width, height);
+
+            // Draw progress
+            ctx.fillRect(1, 1, progWidth - padding, height - padding);
+
+            // Calculate percentage
+            var percCompleteFixed = (percentComplete * 100).toFixed(0) + "%";
+            var percOffset = ctx.measureText(percCompleteFixed).width;
+            ctx.fillStyle = "black";
+
+            // Draw text
+            ctx.fillText(progress, 0 + padding, height / 2 + 3);
+            ctx.fillText(percCompleteFixed, width - percOffset - padding, height / 2 + 3);
+
+            ctx = null;
+        });
+    });
+</script>
